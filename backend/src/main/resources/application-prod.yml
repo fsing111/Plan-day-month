@@ -1,0 +1,14 @@
+# 生产环境配置 - Docker 部署使用容器服务名
+spring:
+  datasource:
+    url: jdbc:mysql://mysql:3306/plan_system?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD:root123}
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+logging:
+  level:
+    com.plansystem: info
