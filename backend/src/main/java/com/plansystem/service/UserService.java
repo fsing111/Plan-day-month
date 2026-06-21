@@ -59,14 +59,9 @@ public class UserService {
      * Get the IDs of users visible to the current user based on role.
      */
     public List<Long> getVisibleUserIds(Long currentUserId, String currentRole) {
-        if ("ADMIN".equals(currentRole)) {
-            // Admin sees all
+        if ("LEADER".equals(currentRole)) {
+            // Leader sees all (admin functions merged into leader role)
             return null; // null means no filtering
-        } else if ("LEADER".equals(currentRole)) {
-            // Leader sees self + all subordinates
-            List<Long> ids = getAllSubordinateIds(currentUserId);
-            ids.add(currentUserId);
-            return ids;
         } else {
             // Employee sees only self
             return List.of(currentUserId);

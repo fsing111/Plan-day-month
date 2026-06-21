@@ -13,7 +13,7 @@
             <el-option label="已提交" value="SUBMITTED" />
             <el-option label="验收中" value="APPROVING" />
             <el-option label="已通过" value="APPROVED" />
-            <el-option label="已驳回" value="REJECTED" />
+            <el-option label="待修改" value="REJECTED" />
           </el-select>
         </el-form-item>
         <el-form-item label="计划类型">
@@ -35,6 +35,28 @@
         </el-form-item>
       </el-form>
     </div>
+
+    <!-- Approved Plans Without Achievement -->
+    <el-card v-if="approvedPlans.length > 0" shadow="never" class="approved-plans-card">
+      <template #header>
+        <div class="card-header">
+          <span class="card-title">✅ 可提交成果的计划</span>
+          <el-tag type="success" size="small">{{ approvedPlans.length }} 个</el-tag>
+        </div>
+      </template>
+      <div class="approved-plan-list">
+        <div v-for="p in approvedPlans" :key="p.id" class="approved-plan-item">
+          <div class="plan-info">
+            <el-tag :type="planTypeColor(p.planType)" size="small">{{ planTypeLabel(p.planType) }}</el-tag>
+            <span class="plan-title">{{ p.title }}</span>
+            <el-tag :type="priorityColor(p.priority)" size="small">{{ priorityLabel(p.priority) }}</el-tag>
+          </div>
+          <el-button type="success" size="small" @click="$router.push(`/achievements/submit/${p.id}`)">
+            提交成果
+          </el-button>
+        </div>
+      </div>
+    </el-card>
 
     <!-- Table -->
     <el-table v-loading="loading" :data="tableData" stripe border style="width: 100%">
@@ -103,9 +125,11 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { getAchievementList, submitAchievement } from '@/api/achievement'
+import { getApprovedPlansWithoutAchievement } from '@/api/plan'
 
 const loading = ref(false)
 const tableData = ref([])
+const approvedPlans = ref([])
 
 const searchForm = reactive({
   status: '',
@@ -120,10 +144,16 @@ const pagination = reactive({
 })
 
 const planTypeMap = { DAILY: '日报', WEEKLY: '周报', MONTHLY: '月报' }
-const achievementStatusMap = { PENDING: '待填写', SUBMITTED: '已提交', APPROVING: '验收中', APPROVED: '已通过', REJECTED: '已驳回' }
+const achievementStatusMap = { PENDING: '待填写', SUBMITTED: '已提交', APPROVING: '验收中', APPROVED: '已通过', REJECTED: '待修改' }
+const priorityMap = { HIGH: '高', MEDIUM: '中', LOW: '低' }
 
 function planTypeLabel(t) { return planTypeMap[t] || t }
 function planTypeColor(t) { return t === 'DAILY' ? '' : t === 'WEEKLY' ? 'warning' : 'info' }
+function priorityLabel(p) { return priorityMap[p] || p }
+function priorityColor(p) {
+  const map = { HIGH: 'danger', MEDIUM: 'warning', LOW: '' }
+  return map[p] || 'info'
+}
 function achievementStatusLabel(s) { return achievementStatusMap[s] || s }
 function achievementStatusColor(s) {
   const map = { PENDING: 'info', SUBMITTED: '', APPROVING: 'warning', APPROVED: 'success', REJECTED: 'danger' }
@@ -175,7 +205,19 @@ async function handleSubmit(row) {
   }
 }
 
-onMounted(() => { fetchData() })
+async function loadApprovedPlans() {
+  try {
+    const res = await getApprovedPlansWithoutAchievement()
+    if (res.code === 200 && res.data) {
+      approvedPlans.value = res.data || []
+    }
+  } catch { /* ignore */ }
+}
+
+onMounted(() => {
+  fetchData()
+  loadApprovedPlans()
+})
 </script>
 
 <style scoped>
@@ -197,5 +239,51 @@ onMounted(() => { fetchData() })
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+.approved-plans-card {
+  margin-bottom: 16px;
+}
+
+.approved-plans-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.approved-plans-card .card-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.approved-plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.approved-plan-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f0f9eb;
+  border-radius: 6px;
+  border: 1px solid #e1f3d8;
+}
+
+.approved-plan-item .plan-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.approved-plan-item .plan-title {
+  font-weight: 500;
+  color: #303133;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

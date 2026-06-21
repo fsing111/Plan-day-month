@@ -14,7 +14,7 @@ public enum AchievementStatus {
     SUBMITTED("SUBMITTED", "已提交"),
     APPROVING("APPROVING", "验收中"),
     APPROVED("APPROVED", "已通过"),
-    REJECTED("REJECTED", "已驳回");
+    REJECTED("REJECTED", "待修改");
 
     @EnumValue
     @JsonValue

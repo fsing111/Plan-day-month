@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('成果详情')" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="ibox"><div class="ibox-title"><h5>成果信息</h5></div>
+                <div class="ibox-content">
+                    <table class="table table-bordered">
+                        <tr><th width="100">状态</th><td id="achvStatus"></td></tr>
+                        <tr><th>关联计划</th><td id="achvPlans"></td></tr>
+                        <tr><th>实际数量</th><td id="achvQty"></td></tr>
+                        <tr><th>实际耗时</th><td id="achvHours"></td></tr>
+                        <tr><th>提交时间</th><td id="achvSubmitted"></td></tr>
+                        <tr><th>问题记录</th><td id="achvIssues"></td></tr>
+                        <tr><th>备注</th><td id="achvRemark"></td></tr>
+                    </table>
+                </div></div>
+            <div class="ibox"><div class="ibox-title"><h5>完成说明</h5></div>
+                <div class="ibox-content" id="achvDesc"></div></div>
+            <div class="ibox"><div class="ibox-title"><h5>附件</h5></div>
+                <div class="ibox-content" id="achvFiles"></div></div>
+        </div>
+        <div class="col-sm-4">
+            <div class="ibox"><div class="ibox-title"><h5>计划 vs 实际</h5></div>
+                <div class="ibox-content" id="vsPanel"></div></div>
+            <div class="ibox"><div class="ibox-title"><h5>审批时间线</h5></div>
+                <div class="ibox-content" id="achvTimeline"></div></div>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/achievement/achievement-detail.js}"></script>
+</body>
+</html>

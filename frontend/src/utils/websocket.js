@@ -18,7 +18,7 @@ export function connectWebSocket() {
     connectHeaders: {
       Authorization: `Bearer ${token}`
     },
-    debug: false,
+    debug: () => {},
     reconnectDelay: 5000,
     heartbeatIncoming: 4000,
     heartbeatOutgoing: 4000,

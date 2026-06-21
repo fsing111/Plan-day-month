@@ -137,7 +137,7 @@ const trend = ref([])
 const pieData = computed(() => {
   const statusLabels = {
     DRAFT: '草稿', SUBMITTED: '已提交', APPROVING: '审批中',
-    APPROVED: '已通过', REJECTED: '已驳回'
+    APPROVED: '已通过', REJECTED: '待修改'
   }
   const statusColors = {
     DRAFT: '#909399', SUBMITTED: '#409eff', APPROVING: '#e6a23c',
@@ -146,7 +146,7 @@ const pieData = computed(() => {
   // Derive from summary
   return [
     { name: '已通过', value: summary.approvedPlans || 0, itemStyle: { color: '#67c23a' } },
-    { name: '已驳回', value: summary.rejectedPlans || 0, itemStyle: { color: '#f56c6c' } },
+    { name: '待修改', value: summary.rejectedPlans || 0, itemStyle: { color: '#f56c6c' } },
     { name: '其他', value: Math.max(0, (summary.totalPlans || 0) - (summary.approvedPlans || 0) - (summary.rejectedPlans || 0)), itemStyle: { color: '#e6a23c' } }
   ].filter(d => d.value > 0)
 })

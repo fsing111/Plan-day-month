@@ -139,7 +139,7 @@ const comparison = ref(null)
 const timelineData = ref(null)
 
 const planTypeMap = { DAILY: '日报', WEEKLY: '周报', MONTHLY: '月报' }
-const achievementStatusMap = { PENDING: '待填写', SUBMITTED: '已提交', APPROVING: '验收中', APPROVED: '已通过', REJECTED: '已驳回' }
+const achievementStatusMap = { PENDING: '待填写', SUBMITTED: '已提交', APPROVING: '验收中', APPROVED: '已通过', REJECTED: '待修改' }
 const priorityMap = { HIGH: '高', MEDIUM: '中', LOW: '低' }
 
 function planTypeLabel(t) { return planTypeMap[t] || t }

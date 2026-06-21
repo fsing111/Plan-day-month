@@ -24,3 +24,7 @@ export function transferRecord(recordId, data) {
 export function getApprovalTimeline(targetType, targetId) {
   return request.get(`/approvals/${targetType}/${targetId}/timeline`)
 }
+
+export function batchApprove(recordIds, comment) {
+  return request.post('/approvals/batch-approve', { recordIds, comment })
+}

@@ -4,6 +4,9 @@
 -- 此文件在 MySQL 容器首次启动时由 /docker-entrypoint-initdb.d/ 自动执行
 -- ============================================================
 
+-- 关键：设置客户端连接字符集为 utf8mb4，防止中文乱码
+SET NAMES utf8mb4;
+
 -- 创建数据库（如果不存在）
 CREATE DATABASE IF NOT EXISTS plan_system
     DEFAULT CHARACTER SET utf8mb4
@@ -70,11 +73,12 @@ CREATE TABLE IF NOT EXISTS plan (
     title          VARCHAR(200)  NOT NULL                     COMMENT '计划标题',
     description    TEXT          DEFAULT NULL                 COMMENT '详细描述（富文本HTML）',
     priority       VARCHAR(10)   NOT NULL DEFAULT 'MEDIUM'    COMMENT '优先级：HIGH/MEDIUM/LOW',
-    status         VARCHAR(20)   NOT NULL DEFAULT 'DRAFT'     COMMENT '状态：DRAFT/SUBMITTED/APPROVING/APPROVED/REJECTED',
+    status         VARCHAR(20)   NOT NULL DEFAULT 'DRAFT'     COMMENT '状态：DRAFT/SUBMITTED/APPROVING/APPROVED/REJECTED/ARCHIVED/OVERDUE',
     start_time     DATETIME      NOT NULL                     COMMENT '计划开始时间',
     end_time       DATETIME      NOT NULL                     COMMENT '计划截止时间',
     category_id    BIGINT        DEFAULT NULL                 COMMENT '所属项目分类ID',
     quant_target   VARCHAR(200)  DEFAULT NULL                 COMMENT '量化指标描述',
+    deleted_at     DATETIME      DEFAULT NULL                 COMMENT '软删除时间',
     created_at     DATETIME      DEFAULT CURRENT_TIMESTAMP    COMMENT '创建时间',
     updated_at     DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX idx_user_id (user_id),
@@ -91,7 +95,7 @@ CREATE TABLE IF NOT EXISTS plan (
 -- ============================================================
 CREATE TABLE IF NOT EXISTS achievement (
     id             BIGINT        PRIMARY KEY AUTO_INCREMENT  COMMENT '主键ID',
-    plan_id        BIGINT        NOT NULL UNIQUE              COMMENT '关联计划ID（一对一）',
+    plan_id        BIGINT        DEFAULT NULL                 COMMENT '关联计划ID（一对多，关联表为achievement_plan_ref）',
     description    TEXT          NOT NULL                     COMMENT '完成说明（富文本HTML）',
     actual_qty     VARCHAR(200)  DEFAULT NULL                 COMMENT '实际完成数量',
     actual_hours   DECIMAL(5,1)  DEFAULT NULL                 COMMENT '实际耗时（小时）',
@@ -99,11 +103,11 @@ CREATE TABLE IF NOT EXISTS achievement (
     remark         TEXT          DEFAULT NULL                 COMMENT '备注',
     status         VARCHAR(20)   NOT NULL DEFAULT 'PENDING'   COMMENT '状态：PENDING/SUBMITTED/APPROVING/APPROVED/REJECTED',
     submitted_at   DATETIME      DEFAULT NULL                 COMMENT '提交时间',
+    deleted_at     DATETIME      DEFAULT NULL                 COMMENT '软删除时间',
     created_at     DATETIME      DEFAULT CURRENT_TIMESTAMP    COMMENT '创建时间',
     updated_at     DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX idx_plan_id (plan_id),
-    INDEX idx_status (status),
-    FOREIGN KEY (plan_id) REFERENCES plan(id)
+    INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='成果表';
 
 -- ============================================================
@@ -205,6 +209,104 @@ CREATE TABLE IF NOT EXISTS plan_monthly_ref (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='周报-月报关联表';
 
 -- ============================================================
+-- 12. achievement_plan_ref 成果-计划关联表（一对多）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS achievement_plan_ref (
+    id               BIGINT   PRIMARY KEY AUTO_INCREMENT,
+    achievement_id   BIGINT   NOT NULL,
+    plan_id          BIGINT   NOT NULL,
+    created_at       DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_achv_plan (achievement_id, plan_id),
+    INDEX idx_achievement (achievement_id),
+    INDEX idx_plan (plan_id),
+    FOREIGN KEY (achievement_id) REFERENCES achievement(id) ON DELETE CASCADE,
+    FOREIGN KEY (plan_id) REFERENCES plan(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='成果-计划关联表';
+
+-- ============================================================
+-- 13. recycle_bin 回收站表（软删除记录）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS recycle_bin (
+    id               BIGINT        PRIMARY KEY AUTO_INCREMENT  COMMENT '主键ID',
+    original_table   VARCHAR(50)   NOT NULL                     COMMENT '原始表名',
+    original_id      BIGINT        NOT NULL                     COMMENT '原始记录ID',
+    title            VARCHAR(200)  DEFAULT NULL                 COMMENT '记录标题',
+    delete_reason    VARCHAR(500)  DEFAULT NULL                 COMMENT '删除原因',
+    deleted_by       BIGINT        NOT NULL                     COMMENT '删除人ID',
+    deleted_at       DATETIME      DEFAULT CURRENT_TIMESTAMP    COMMENT '删除时间',
+    can_restore_until DATETIME     DEFAULT NULL                 COMMENT '可恢复截止时间（30天）',
+    INDEX idx_original (original_table, original_id),
+    INDEX idx_deleted_by (deleted_by),
+    INDEX idx_deleted_at (deleted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='回收站表';
+
+-- ============================================================
+-- 14. plan_template 计划模板表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS plan_template (
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id     BIGINT NOT NULL,
+    name        VARCHAR(100) NOT NULL,
+    plan_type   VARCHAR(10) NOT NULL,
+    title       VARCHAR(200),
+    description TEXT,
+    priority    VARCHAR(10) DEFAULT 'MEDIUM',
+    category_id BIGINT,
+    quant_target VARCHAR(200),
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='计划模板表';
+
+-- ============================================================
+-- 15. plan_comment 计划/成果评论表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS plan_comment (
+    id          BIGINT        PRIMARY KEY AUTO_INCREMENT  COMMENT '主键ID',
+    target_id   BIGINT        NOT NULL                     COMMENT '目标ID（plan.id 或 achievement.id）',
+    target_type VARCHAR(20)   NOT NULL                     COMMENT '目标类型：PLAN/ACHIEVEMENT',
+    user_id     BIGINT        NOT NULL                     COMMENT '评论人ID',
+    content     TEXT          NOT NULL                     COMMENT '评论内容',
+    created_at  DATETIME      DEFAULT CURRENT_TIMESTAMP    COMMENT '评论时间',
+    INDEX idx_target (target_id, target_type),
+    INDEX idx_user_id (user_id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论表';
+
+-- ============================================================
+-- 16. operation_log 操作日志表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS operation_log (
+    id          BIGINT        PRIMARY KEY AUTO_INCREMENT  COMMENT '主键ID',
+    user_id     BIGINT        NOT NULL                     COMMENT '操作人ID',
+    username    VARCHAR(50)   NOT NULL                     COMMENT '操作人用户名',
+    operation   VARCHAR(30)   NOT NULL                     COMMENT '操作类型：CREATE/UPDATE/DELETE/SUBMIT/WITHDRAW/APPROVE/REJECT',
+    target_type VARCHAR(20)   NOT NULL                     COMMENT '目标类型：PLAN/ACHIEVEMENT/APPROVAL',
+    target_id   BIGINT        DEFAULT NULL                 COMMENT '目标ID',
+    summary     VARCHAR(500)  DEFAULT NULL                 COMMENT '变更摘要',
+    ip_address  VARCHAR(50)   DEFAULT NULL                 COMMENT '操作IP',
+    created_at  DATETIME      DEFAULT CURRENT_TIMESTAMP    COMMENT '操作时间',
+    INDEX idx_user_id (user_id),
+    INDEX idx_target (target_type, target_id),
+    INDEX idx_created_at (created_at),
+    INDEX idx_operation (operation)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
+
+-- ============================================================
+-- 17. plan_revision 计划修改版本记录表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS plan_revision (
+    id              BIGINT        PRIMARY KEY AUTO_INCREMENT  COMMENT '主键ID',
+    plan_id         BIGINT        NOT NULL                     COMMENT '计划ID',
+    version         INT           NOT NULL                     COMMENT '版本号',
+    changes         JSON          DEFAULT NULL                 COMMENT '变更字段及新旧值',
+    submitter_note  TEXT          DEFAULT NULL                 COMMENT '员工填写的修改说明',
+    created_at      DATETIME      DEFAULT CURRENT_TIMESTAMP    COMMENT '创建时间',
+    INDEX idx_plan_id (plan_id),
+    FOREIGN KEY (plan_id) REFERENCES plan(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='计划修改版本记录';
+
+-- ============================================================
 -- 种子数据
 -- ============================================================
 
@@ -214,7 +316,7 @@ INSERT INTO department (id, name, parent_id, sort_order) VALUES
 
 -- 插入管理员账号 (admin / admin123)
 INSERT INTO users (id, username, password, real_name, role, dept_id, leader_id) VALUES
-(1, 'admin', '$2a$10$VaQKUiNIwlVc.d5RqShevO8mwhwXyhwC0DbrzjhfZ/AfEJtpnPoSy', '系统管理员', 'ADMIN', 1, NULL);
+(1, 'admin', '$2a$10$VaQKUiNIwlVc.d5RqShevO8mwhwXyhwC0DbrzjhfZ/AfEJtpnPoSy', '系统管理员', 'LEADER', 1, NULL);
 
 -- 插入默认分类
 INSERT INTO project_category (id, name, dept_id, sort_order) VALUES

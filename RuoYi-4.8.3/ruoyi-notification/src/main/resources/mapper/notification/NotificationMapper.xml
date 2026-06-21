@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.notification.mapper.NotificationMapper">
+
+    <resultMap type="Notification" id="NotifyResult">
+        <id property="id" column="id"/>
+        <result property="receiverId" column="receiver_id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="isRead" column="is_read"/>
+        <result property="relatedId" column="related_id"/>
+        <result property="relatedType" column="related_type"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectNotificationList" parameterType="Notification" resultMap="NotifyResult">
+        select * from notification where receiver_id = #{receiverId}
+        order by create_time desc
+    </select>
+
+    <select id="selectUnreadCount" parameterType="Long" resultType="int">
+        select count(1) from notification where receiver_id = #{receiverId} and is_read = 0
+    </select>
+
+    <insert id="insertNotification" parameterType="Notification" useGeneratedKeys="true" keyProperty="id">
+        insert into notification (receiver_id, type, title, content, is_read, related_id, related_type, create_by, create_time)
+        values (#{receiverId}, #{type}, #{title}, #{content}, 0, #{relatedId}, #{relatedType}, #{createBy}, sysdate())
+    </insert>
+
+    <update id="markAsRead" parameterType="Long">
+        update notification set is_read = 1 where id = #{id}
+    </update>
+
+    <update id="markAllAsRead" parameterType="Long">
+        update notification set is_read = 1 where receiver_id = #{receiverId} and is_read = 0
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from notification where id = #{id}
+    </delete>
+
+</mapper>

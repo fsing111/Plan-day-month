@@ -12,3 +12,7 @@ export function getTeamStats(params) {
 export function getTrendData(params) {
   return request.get('/statistics/trend', { params })
 }
+
+export function remindUnsubmitted(date) {
+  return request.post('/statistics/remind', { date })
+}

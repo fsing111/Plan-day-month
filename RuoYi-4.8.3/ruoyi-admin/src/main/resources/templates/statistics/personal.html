@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:include="include :: header('个人统计')" /></head>
+<body class="gray-bg"><div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-3"><div class="ibox"><div class="ibox-content text-center"><h2 id="totalPlans">0</h2><p>计划总数</p></div></div></div>
+        <div class="col-sm-3"><div class="ibox"><div class="ibox-content text-center"><h2 id="approvedPlans">0</h2><p>已通过</p></div></div></div>
+        <div class="col-sm-3"><div class="ibox"><div class="ibox-content text-center"><h2 id="completionRate">0%</h2><p>完成率</p></div></div></div>
+        <div class="col-sm-3"><div class="ibox"><div class="ibox-content text-center"><h2 id="onTimeRate">0%</h2><p>按时提交率</p></div></div></div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6"><div class="ibox"><div class="ibox-title"><h5>状态分布</h5></div><div class="ibox-content"><div id="statusChart" style="height:300px;"></div></div></div></div>
+        <div class="col-sm-6"><div class="ibox"><div class="ibox-title"><h5>按计划类型</h5></div><div class="ibox-content"><div id="typeChart" style="height:300px;"></div></div></div></div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script th:src="@{/ruoyi/js/statistics/personal.js}"></script></body></html>

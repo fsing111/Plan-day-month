@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+
 import java.util.stream.Collectors;
 
 /**
@@ -21,9 +24,30 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     /**
+     * Handle Spring Security method-level access denied (@PreAuthorize).
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Result<Void> handleAuthorizationDeniedException(AuthorizationDeniedException e) {
+        log.warn("Access denied (method security): {}", e.getMessage());
+        return Result.error(403, "权限不足：当前角色无法执行此操作");
+    }
+
+    /**
+     * Handle Spring Security URL-level access denied.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Result<Void> handleAccessDeniedException(AccessDeniedException e) {
+        log.warn("Access denied (URL security): {}", e.getMessage());
+        return Result.error(403, "权限不足：无法访问该资源");
+    }
+
+    /**
      * Handle business exceptions.
      */
     @ExceptionHandler(BusinessException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Result<Void> handleBusinessException(BusinessException e) {
         log.warn("Business exception: code={}, message={}", e.getCode(), e.getMessage());
         return Result.error(e.getCode(), e.getMessage());

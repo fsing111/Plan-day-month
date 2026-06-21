@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head><th:block th:include="include :: header('回收站')" /></head>
+<body class="gray-bg"><div class="wrapper wrapper-content"><div class="ibox"><div class="ibox-title"><h5>回收站 <small class="text-muted">删除后30天内可恢复</small></h5></div>
+<div class="ibox-content"><table id="recycleTable" class="table table-striped"></table></div></div></div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/plan/recycle.js}"></script></body></html>

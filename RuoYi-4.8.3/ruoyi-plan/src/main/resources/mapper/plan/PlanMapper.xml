@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.plan.mapper.PlanMapper">
+
+    <resultMap type="Plan" id="PlanResult">
+        <id     property="id"           column="id" />
+        <result property="userId"       column="user_id" />
+        <result property="planType"     column="plan_type" />
+        <result property="title"        column="title" />
+        <result property="description"  column="description" />
+        <result property="priority"     column="priority" />
+        <result property="status"       column="status" />
+        <result property="startTime"    column="start_time" />
+        <result property="endTime"      column="end_time" />
+        <result property="categoryId"   column="category_id" />
+        <result property="quantTarget"  column="quant_target" />
+        <result property="delFlag"      column="del_flag" />
+        <result property="userName"     column="user_name" />
+        <result property="deptName"     column="dept_name" />
+        <result property="categoryName" column="category_name" />
+        <result property="hasAchievement" column="has_achievement" />
+        <result property="achievementId"  column="achievement_id" />
+    </resultMap>
+
+    <sql id="selectPlanVo">
+        select p.id, p.user_id, p.plan_type, p.title, p.description, p.priority,
+               p.status, p.start_time, p.end_time, p.category_id, p.quant_target,
+               p.del_flag, p.create_by, p.create_time, p.update_by, p.update_time, p.remark,
+               su.user_name, sd.dept_name,
+               pc.name as category_name,
+               case when a.id is not null then 1 else 0 end as has_achievement,
+               a.id as achievement_id
+        from plan p
+        left join sys_user su on p.user_id = su.user_id
+        left join sys_dept sd on su.dept_id = sd.dept_id
+        left join project_category pc on p.category_id = pc.id
+        left join achievement a on a.plan_id = p.id and a.del_flag = '0'
+    </sql>
+
+    <!-- 数据权限过滤条件 -->
+    <sql id="planDataScope">
+        <if test="params.visibleUserIds != null and params.visibleUserIds.size() > 0">
+            AND p.user_id IN
+            <foreach collection="params.visibleUserIds" item="uid" open="(" separator="," close=")">
+                #{uid}
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="selectPlanList" parameterType="Plan" resultMap="PlanResult">
+        <include refid="selectPlanVo" />
+        <where>
+            p.del_flag = '0'
+            <include refid="planDataScope" />
+            <if test="userId != null and userId != 0">AND p.user_id = #{userId}</if>
+            <if test="planType != null and planType != ''">AND p.plan_type = #{planType}</if>
+            <if test="status != null and status != ''">AND p.status = #{status}</if>
+            <if test="priority != null and priority != ''">AND p.priority = #{priority}</if>
+            <if test="categoryId != null and categoryId != 0">AND p.category_id = #{categoryId}</if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND p.start_time &gt;= #{params.beginTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND p.end_time &lt;= #{params.endTime}
+            </if>
+            <if test="title != null and title != ''">
+                AND (p.title like concat('%', #{title}, '%')
+                     or p.description like concat('%', #{title}, '%'))
+            </if>
+        </where>
+        order by p.create_time desc
+    </select>
+
+    <select id="selectPlanById" parameterType="Long" resultMap="PlanResult">
+        <include refid="selectPlanVo" />
+        where p.id = #{id} and p.del_flag = '0'
+    </select>
+
+    <select id="selectCalendarPlans" parameterType="Map" resultMap="PlanResult">
+        <include refid="selectPlanVo" />
+        <where>
+            p.del_flag = '0'
+            <include refid="planDataScope" />
+            <if test="year != null and month != null">
+                AND YEAR(p.start_time) = #{year} AND MONTH(p.start_time) = #{month}
+            </if>
+            <if test="planType != null and planType != ''">
+                AND p.plan_type = #{planType}
+            </if>
+        </where>
+        order by p.start_time
+    </select>
+
+    <select id="selectApprovedSubPlans" parameterType="Map" resultMap="PlanResult">
+        <include refid="selectPlanVo" />
+        <where>
+            p.del_flag = '0'
+            and p.user_id = #{userId}
+            and p.status = 'APPROVED'
+            and p.plan_type = #{subType}
+            <if test="startDate != null">
+                and p.start_time &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                and p.start_time &lt;= #{endDate}
+            </if>
+        </where>
+        order by p.start_time
+    </select>
+
+    <select id="selectApprovedByUserAndDateRange" parameterType="Map" resultMap="PlanResult">
+        <include refid="selectPlanVo" />
+        <where>
+            p.del_flag = '0'
+            and p.user_id = #{userId}
+            and p.status = 'APPROVED'
+            <if test="startDate != null">
+                and p.start_time &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                and p.start_time &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
+
+    <select id="countDuplicatePlan" parameterType="Map" resultType="int">
+        select count(1) from plan
+        where del_flag = '0'
+          and user_id = #{userId}
+          and plan_type = #{planType}
+          and id != #{excludeId}
+          and status not in ('DRAFT')
+          <if test="startDate != null">
+              and start_time &gt;= #{startDate}
+          </if>
+          <if test="endDate != null">
+              and start_time &lt;= #{endDate}
+          </if>
+    </select>
+
+    <insert id="insertPlan" parameterType="Plan" useGeneratedKeys="true" keyProperty="id">
+        insert into plan (
+            user_id, plan_type, title, description, priority, status,
+            start_time, end_time, category_id, quant_target,
+            del_flag, create_by, create_time, remark
+        ) values (
+            #{userId}, #{planType}, #{title}, #{description}, #{priority}, #{status},
+            #{startTime}, #{endTime}, #{categoryId}, #{quantTarget},
+            '0', #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updatePlan" parameterType="Plan">
+        update plan
+        <set>
+            <if test="planType != null">plan_type = #{planType},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="quantTarget != null">quant_target = #{quantTarget},</if>
+            update_by = #{updateBy},
+            update_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updatePlanStatus" parameterType="Map">
+        update plan set status = #{status}, update_time = sysdate()
+        where id = #{id}
+    </update>
+
+    <update id="deletePlanById" parameterType="Long">
+        update plan set del_flag = '2', update_time = sysdate() where id = #{id}
+    </update>
+
+    <update id="batchArchivePlans">
+        update plan set status = 'ARCHIVED', update_time = sysdate()
+        where del_flag = '0'
+          and status = 'APPROVED'
+          and end_time &lt; sysdate()
+    </update>
+
+    <update id="batchMarkOverdue">
+        update plan set status = 'OVERDUE', update_time = sysdate()
+        where del_flag = '0'
+          and status = 'APPROVED'
+          and end_time &lt; sysdate()
+          and id not in (select distinct plan_id from achievement_plan_ref)
+    </update>
+
+</mapper>

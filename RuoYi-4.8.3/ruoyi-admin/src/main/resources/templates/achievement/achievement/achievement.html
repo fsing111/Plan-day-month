@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('成果管理')" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title"><h5>成果列表</h5></div>
+        <div class="ibox-content">
+            <div class="row">
+                <div class="col-sm-12">
+                    <form class="form-horizontal" id="searchForm">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">状态</label>
+                            <div class="col-sm-2">
+                                <select name="status" class="form-control">
+                                    <option value="">全部</option>
+                                    <option value="PENDING">待填写</option>
+                                    <option value="SUBMITTED">已提交</option>
+                                    <option value="APPROVING">验收中</option>
+                                    <option value="APPROVED">已通过</option>
+                                    <option value="REJECTED">待修改</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-primary" onclick="$.table.search()">查询</button>
+                                <button type="button" class="btn btn-default" onclick="resetForm()">重置</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="toolbar">
+                <shiro:hasPermission name="achievement:achievement:add">
+                    <a class="btn btn-primary" onclick="addAchievement()"><i class="fa fa-plus"></i> 提交成果</a>
+                </shiro:hasPermission>
+            </div>
+            <table id="achievementTable" class="table table-striped"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/achievement/achievement.js}"></script>
+</body>
+</html>

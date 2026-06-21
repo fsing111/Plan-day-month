@@ -14,7 +14,9 @@ public enum PlanStatus {
     SUBMITTED("SUBMITTED", "已提交"),
     APPROVING("APPROVING", "审批中"),
     APPROVED("APPROVED", "已通过"),
-    REJECTED("REJECTED", "已驳回");
+    REJECTED("REJECTED", "待修改"),
+    ARCHIVED("ARCHIVED", "已归档"),
+    OVERDUE("OVERDUE", "已逾期");
 
     @EnumValue
     @JsonValue

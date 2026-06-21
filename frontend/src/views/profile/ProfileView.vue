@@ -136,10 +136,10 @@ const infoForm = reactive({
   phone: ''
 })
 
-const roleMap = { EMPLOYEE: '员工', LEADER: '领导', ADMIN: '管理员' }
+const roleMap = { EMPLOYEE: '员工', LEADER: '领导' }
 function roleLabel(r) { return roleMap[r] || r }
 function roleColor(r) {
-  const map = { EMPLOYEE: '', LEADER: 'warning', ADMIN: 'danger' }
+  const map = { EMPLOYEE: '', LEADER: 'warning' }
   return map[r] || 'info'
 }
 

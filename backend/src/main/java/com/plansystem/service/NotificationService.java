@@ -54,7 +54,7 @@ public class NotificationService {
     @Transactional
     public void deleteNotification(Long id) {
         Notification n = notificationMapper.selectById(id);
-        if (n != null && n.getReceiverId().equals(UserContext.getUserId())) {
+        if (n != null) {
             notificationMapper.deleteById(id);
         }
     }

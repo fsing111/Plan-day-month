@@ -112,9 +112,13 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import { getTeamStats } from '@/api/statistics'
 import BarChart from '@/components/charts/BarChart.vue'
 
+const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const dateRange = ref([])
 
@@ -165,7 +169,14 @@ async function fetchData() {
   }
 }
 
-onMounted(() => { fetchData() })
+onMounted(() => {
+  if (!userStore.isLeader) {
+    ElMessage.warning('没有权限访问该页面')
+    router.replace('/dashboard')
+    return
+  }
+  fetchData()
+})
 </script>
 
 <style scoped>

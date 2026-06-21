@@ -59,18 +59,10 @@ public final class UserContext {
     }
 
     /**
-     * Check if current user has admin role.
-     */
-    public static boolean isAdmin() {
-        return "ADMIN".equals(ROLE.get());
-    }
-
-    /**
-     * Check if current user has leader or admin role.
+     * Check if current user has leader role (admin functions merged into leader role).
      */
     public static boolean isLeader() {
-        String role = ROLE.get();
-        return "LEADER".equals(role) || "ADMIN".equals(role);
+        return "LEADER".equals(ROLE.get());
     }
 
     /**

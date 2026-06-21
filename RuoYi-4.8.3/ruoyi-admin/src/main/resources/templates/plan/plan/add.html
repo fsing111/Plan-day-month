@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新建/编辑计划')" />
+    <th:block th:include="include :: summernote-css" />
+    <th:block th:include="include :: summernote-js" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title"><h5>计划表单</h5></div>
+                <div class="ibox-content">
+                    <form class="form-horizontal" id="planForm">
+                        <input type="hidden" id="planId"/>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">计划类型 <span class="text-danger">*</span></label>
+                            <div class="col-sm-4">
+                                <select name="planType" class="form-control" required>
+                                    <option value="">请选择</option>
+                                    <option value="DAILY">日报</option>
+                                    <option value="WEEKLY">周报</option>
+                                    <option value="MONTHLY">月报</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-2 control-label">优先级 <span class="text-danger">*</span></label>
+                            <div class="col-sm-4">
+                                <select name="priority" class="form-control" required>
+                                    <option value="MEDIUM">中</option>
+                                    <option value="HIGH">高</option>
+                                    <option value="LOW">低</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">计划标题 <span class="text-danger">*</span></label>
+                            <div class="col-sm-10">
+                                <input type="text" name="title" class="form-control" maxlength="200" required placeholder="简洁概括计划内容"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">所属分类</label>
+                            <div class="col-sm-4">
+                                <select name="categoryId" class="form-control" id="categorySelect">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-2 control-label">量化指标</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="quantTarget" class="form-control" placeholder="预计完成的具体数量或指标"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">开始时间 <span class="text-danger">*</span></label>
+                            <div class="col-sm-4">
+                                <input type="text" name="startTime" class="form-control datetimepicker" required/>
+                            </div>
+                            <label class="col-sm-2 control-label">截止时间 <span class="text-danger">*</span></label>
+                            <div class="col-sm-4">
+                                <input type="text" name="endTime" class="form-control datetimepicker" required/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">汇总引用</label>
+                            <div class="col-sm-10">
+                                <select name="refPlanIds" class="form-control" id="refPlanSelect" multiple size="5">
+                                    <option value="">选择计划类型后将自动加载可引用的已通过计划</option>
+                                </select>
+                                <span class="help-block">周报可引用本周日报，月报可引用本月周报</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">详细描述</label>
+                            <div class="col-sm-10">
+                                <div id="descriptionEditor" class="summernote"></div>
+                                <input type="hidden" name="description" id="descriptionInput"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/plan/plan-form.js}"></script>
+</body>
+</html>

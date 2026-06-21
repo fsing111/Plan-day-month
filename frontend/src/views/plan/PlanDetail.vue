@@ -12,6 +12,14 @@
           编辑
         </el-button>
         <el-button
+          v-if="plan.status === 'APPROVED'"
+          type="success"
+          @click="$router.push(`/achievements/submit/${plan.id}`)"
+        >
+          <el-icon><Upload /></el-icon>
+          提交成果
+        </el-button>
+        <el-button
           v-if="canSubmit"
           type="success"
           :loading="submitting"
@@ -102,16 +110,23 @@
             <span class="card-title">关联成果</span>
           </template>
           <div class="achievement-placeholder">
-            <el-empty
-              v-if="!plan.hasAchievement"
-              description="暂无成果"
-              :image-size="60"
-            />
-            <div v-else>
+            <div v-if="plan.hasAchievement">
               <el-button link type="primary" @click="$router.push(`/achievements/${plan.achievementId}`)">
                 查看成果详情
               </el-button>
             </div>
+            <div v-else-if="plan.status === 'APPROVED'">
+              <p class="hint">该计划已通过，可提交成果</p>
+              <el-button type="success" size="small" @click="$router.push(`/achievements/submit/${plan.id}`)">
+                <el-icon><Upload /></el-icon>
+                提交成果
+              </el-button>
+            </div>
+            <el-empty
+              v-else
+              description="暂无成果"
+              :image-size="60"
+            />
           </div>
         </el-card>
       </el-col>
@@ -152,7 +167,7 @@ const plan = reactive({
 })
 
 const planTypeMap = { DAILY: '日报', WEEKLY: '周报', MONTHLY: '月报' }
-const statusMap = { DRAFT: '草稿', SUBMITTED: '已提交', APPROVING: '审批中', APPROVED: '已通过', REJECTED: '已驳回' }
+const statusMap = { DRAFT: '草稿', SUBMITTED: '已提交', APPROVING: '审批中', APPROVED: '已通过', REJECTED: '待修改', ARCHIVED: '已归档', OVERDUE: '已逾期' }
 const priorityMap = { HIGH: '高', MEDIUM: '中', LOW: '低' }
 
 function planTypeLabel(t) { return planTypeMap[t] || t }

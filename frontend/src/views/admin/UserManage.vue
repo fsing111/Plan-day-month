@@ -18,7 +18,6 @@
           <el-select v-model="searchForm.role" placeholder="全部" clearable style="width: 120px">
             <el-option label="员工" value="EMPLOYEE" />
             <el-option label="领导" value="LEADER" />
-            <el-option label="管理员" value="ADMIN" />
           </el-select>
         </el-form-item>
         <el-form-item label="部门">
@@ -114,7 +113,6 @@
           <el-select v-model="form.role" placeholder="请选择" style="width:100%">
             <el-option label="员工" value="EMPLOYEE" />
             <el-option label="领导" value="LEADER" />
-            <el-option label="管理员" value="ADMIN" />
           </el-select>
         </el-form-item>
         <el-form-item label="部门" prop="deptId">
@@ -147,10 +145,14 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 import { Plus, Search } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
 import { getUserList, createUser, updateUser, disableUser, resetPassword } from '@/api/admin'
 import { getDepartmentList } from '@/api/admin'
 
+const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const tableData = ref([])
 const dialogVisible = ref(false)
@@ -192,10 +194,10 @@ const formRules = {
   deptId: [{ required: true, message: '请选择部门', trigger: 'change' }]
 }
 
-const roleMap = { EMPLOYEE: '员工', LEADER: '领导', ADMIN: '管理员' }
+const roleMap = { EMPLOYEE: '员工', LEADER: '领导' }
 function roleLabel(r) { return roleMap[r] || r }
 function roleColor(r) {
-  const map = { EMPLOYEE: '', LEADER: 'warning', ADMIN: 'danger' }
+  const map = { EMPLOYEE: '', LEADER: 'warning' }
   return map[r] || 'info'
 }
 
@@ -317,6 +319,11 @@ async function handleResetPassword(row) {
 }
 
 onMounted(() => {
+  if (!userStore.isLeader) {
+    ElMessage.warning('没有权限访问该页面')
+    router.replace('/dashboard')
+    return
+  }
   fetchData()
   loadOptions()
 })

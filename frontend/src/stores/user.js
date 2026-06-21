@@ -8,8 +8,8 @@ export const useUserStore = defineStore('user', () => {
 
   const isLoggedIn = computed(() => !!token.value)
   const role = computed(() => user.value?.role || '')
-  const isAdmin = computed(() => user.value?.role === 'ADMIN')
-  const isLeader = computed(() => user.value?.role === 'LEADER' || user.value?.role === 'ADMIN')
+  const isAdmin = computed(() => user.value?.role === 'LEADER')
+  const isLeader = computed(() => user.value?.role === 'LEADER')
 
   function login(userData, tokenValue) {
     token.value = tokenValue

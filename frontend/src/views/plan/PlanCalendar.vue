@@ -62,7 +62,7 @@ const selectedPlan = ref(null)
 const planTypeFilter = ref('')
 
 const planTypeMap = { DAILY: '日报', WEEKLY: '周报', MONTHLY: '月报' }
-const statusMap = { DRAFT: '草稿', SUBMITTED: '已提交', APPROVING: '审批中', APPROVED: '已通过', REJECTED: '已驳回' }
+const statusMap = { DRAFT: '草稿', SUBMITTED: '已提交', APPROVING: '审批中', APPROVED: '已通过', REJECTED: '待修改', ARCHIVED: '已归档', OVERDUE: '已逾期' }
 const priorityMap = { HIGH: '高', MEDIUM: '中', LOW: '低' }
 
 function planTypeLabel(t) { return planTypeMap[t] || t }

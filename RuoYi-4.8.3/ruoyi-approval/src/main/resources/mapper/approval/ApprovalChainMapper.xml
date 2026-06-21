@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.approval.mapper.ApprovalChainMapper">
+
+    <resultMap type="ApprovalChain" id="ChainResult">
+        <id property="id" column="id"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="planType" column="plan_type"/>
+        <result property="approvalLevel" column="approval_level"/>
+        <result property="approverId" column="approver_id"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="approverName" column="approver_name"/>
+    </resultMap>
+
+    <select id="selectApprovalChainList" parameterType="ApprovalChain" resultMap="ChainResult">
+        select ac.*, sd.dept_name, su.user_name as approver_name
+        from approval_chain ac
+        left join sys_dept sd on ac.dept_id = sd.dept_id
+        left join sys_user su on ac.approver_id = su.user_id
+        <where>
+            <if test="deptId != null">and ac.dept_id = #{deptId}</if>
+            <if test="planType != null and planType != ''">and ac.plan_type = #{planType}</if>
+        </where>
+        order by ac.dept_id, ac.approval_level, ac.sort_order
+    </select>
+
+    <select id="selectByDeptAndType" parameterType="Map" resultMap="ChainResult">
+        select ac.*, su.user_name as approver_name
+        from approval_chain ac
+        left join sys_user su on ac.approver_id = su.user_id
+        where ac.dept_id = #{deptId} and ac.plan_type = #{planType}
+        order by ac.approval_level, ac.sort_order
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="ChainResult">
+        select ac.*, sd.dept_name, su.user_name as approver_name
+        from approval_chain ac
+        left join sys_dept sd on ac.dept_id = sd.dept_id
+        left join sys_user su on ac.approver_id = su.user_id
+        where ac.id = #{id}
+    </select>
+
+    <insert id="insertApprovalChain" parameterType="ApprovalChain">
+        insert into approval_chain (dept_id, plan_type, approval_level, approver_id, sort_order, create_by, create_time)
+        values (#{deptId}, #{planType}, #{approvalLevel}, #{approverId}, #{sortOrder}, #{createBy}, sysdate())
+    </insert>
+
+    <update id="updateApprovalChain" parameterType="ApprovalChain">
+        update approval_chain
+        <set>
+            <if test="approvalLevel != null">approval_level = #{approvalLevel},</if>
+            <if test="approverId != null">approver_id = #{approverId},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            update_by = #{updateBy}, update_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from approval_chain where id = #{id}
+    </delete>
+
+</mapper>

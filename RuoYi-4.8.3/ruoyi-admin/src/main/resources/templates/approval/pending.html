@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('待审批')" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title"><h5>待审批列表</h5></div>
+        <div class="ibox-content">
+            <ul class="nav nav-tabs" id="approvalTabs">
+                <li class="active"><a href="#planTab" data-toggle="tab">计划审批</a></li>
+                <li><a href="#achvTab" data-toggle="tab">成果验收</a></li>
+            </ul>
+            <div class="tab-content" style="margin-top:15px;">
+                <div class="tab-pane active" id="planTab">
+                    <div id="planToolbar">
+                        <shiro:hasPermission name="approval:approval:batchApprove">
+                            <button class="btn btn-success btn-sm" onclick="batchApprove('PLAN')"><i class="fa fa-check"></i> 批量通过</button>
+                        </shiro:hasPermission>
+                    </div>
+                    <table id="planPendingTable" class="table table-striped"></table>
+                </div>
+                <div class="tab-pane" id="achvTab">
+                    <div id="achvToolbar">
+                        <shiro:hasPermission name="approval:approval:batchApprove">
+                            <button class="btn btn-success btn-sm" onclick="batchApprove('ACHIEVEMENT')"><i class="fa fa-check"></i> 批量通过</button>
+                        </shiro:hasPermission>
+                    </div>
+                    <table id="achvPendingTable" class="table table-striped"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 审批弹窗 -->
+<div class="modal fade" id="approvalModal"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h4>审批操作</h4></div>
+    <div class="modal-body">
+        <form id="approvalForm">
+            <input type="hidden" id="approvalRecordId"/>
+            <div class="form-group"><label>审批意见 <span class="text-danger" id="commentRequired" style="display:none;">*驳回必须填写</span></label>
+                <textarea class="form-control" id="approvalComment" rows="4"></textarea>
+            </div>
+            <div class="form-group" id="transferGroup" style="display:none;">
+                <label>转审给</label><select class="form-control" id="transferUser"></select>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" onclick="doAction('APPROVE')">通过</button>
+        <button class="btn btn-danger" onclick="doAction('REJECT')" id="rejectBtn">驳回</button>
+        <button class="btn btn-warning" onclick="showTransfer()">转审</button>
+        <button class="btn btn-default" data-dismiss="modal">取消</button>
+    </div>
+</div></div></div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/approval/pending.js}"></script>
+</body>
+</html>

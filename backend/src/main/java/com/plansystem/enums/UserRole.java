@@ -11,8 +11,7 @@ import lombok.Getter;
 public enum UserRole {
 
     EMPLOYEE("EMPLOYEE", "员工"),
-    LEADER("LEADER", "领导"),
-    ADMIN("ADMIN", "管理员");
+    LEADER("LEADER", "领导");
 
     @EnumValue
     @JsonValue

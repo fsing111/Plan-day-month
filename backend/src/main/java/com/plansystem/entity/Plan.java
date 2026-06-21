@@ -27,6 +27,7 @@ public class Plan {
     private LocalDateTime endTime;
     private Long categoryId;
     private String quantTarget;
+    private LocalDateTime deletedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

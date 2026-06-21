@@ -61,9 +61,13 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 import { Plus } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
 import { getCategories, createCategory, updateCategory, deleteCategory, getDepartmentList } from '@/api/admin'
 
+const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const saving = ref(false)
 const dialogVisible = ref(false)
@@ -161,6 +165,11 @@ async function handleDelete(id) {
 }
 
 onMounted(() => {
+  if (!userStore.isLeader) {
+    ElMessage.warning('没有权限访问该页面')
+    router.replace('/dashboard')
+    return
+  }
   fetchData()
   loadDepts()
 })

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('工作台')" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-3"><div class="ibox"><div class="ibox-content text-center"><h2 id="todayPlans">0</h2><p class="text-muted">今日计划数</p></div></div></div>
+        <div class="col-sm-3"><div class="ibox"><div class="ibox-content text-center"><h2 id="pendingApprovals">0</h2><p class="text-muted">待审批项</p></div></div></div>
+        <div class="col-sm-3"><div class="ibox"><div class="ibox-content text-center"><h2 id="rejectedCount">0</h2><p class="text-muted">待修改项</p></div></div></div>
+        <div class="col-sm-3"><div class="ibox"><div class="ibox-content text-center"><h2 id="weeklyRate">0%</h2><p class="text-muted">本周完成率</p></div></div></div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="ibox"><div class="ibox-title"><h5>快捷操作</h5></div>
+                <div class="ibox-content">
+                    <a class="btn btn-primary m-r-sm" onclick="$.operate.addTab('日报','/plan/plan/add?type=DAILY')"><i class="fa fa-file-text-o"></i> 新建日报</a>
+                    <a class="btn btn-info m-r-sm" onclick="$.operate.addTab('周报','/plan/plan/add?type=WEEKLY')"><i class="fa fa-file-text"></i> 新建周报</a>
+                    <a class="btn btn-success m-r-sm" onclick="$.operate.addTab('月报','/plan/plan/add?type=MONTHLY')"><i class="fa fa-file-text-o"></i> 新建月报</a>
+                    <a class="btn btn-warning m-r-sm" onclick="$.operate.addTab('我的计划','/plan/plan')"><i class="fa fa-list-alt"></i> 查看计划</a>
+                </div></div>
+            <div class="ibox"><div class="ibox-title"><h5>本周完成趋势</h5></div>
+                <div class="ibox-content"><div id="trendChart" style="height:250px;"></div></div></div>
+        </div>
+        <div class="col-sm-4">
+            <div class="ibox"><div class="ibox-title"><h5>最近通知</h5></div>
+                <div class="ibox-content" id="recentNotifications"><p class="text-muted">加载中...</p></div></div>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script th:src="@{/ruoyi/js/dashboard/dashboard.js}"></script>
+</body>
+</html>

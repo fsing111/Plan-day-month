@@ -29,10 +29,15 @@ public enum ErrorCode {
     PLAN_STATUS_NOT_EDITABLE(2001, "当前计划状态不可编辑"),
     PLAN_ALREADY_SUBMITTED(2002, "计划已提交，不可重复提交"),
     PLAN_NOT_APPROVED(2003, "计划未通过审批，不可提交成果"),
+    PLAN_DUPLICATE_DAILY(2004, "今日已有日报，请勿重复提交"),
+    PLAN_DUPLICATE_WEEKLY(2005, "本周已有周报，请勿重复提交"),
+    PLAN_DUPLICATE_MONTHLY(2006, "本月已有月报，请勿重复提交"),
+    PLAN_CANNOT_WITHDRAW(2007, "已有审批人处理，无法撤回"),
 
     // Achievement errors
     ACHIEVEMENT_ALREADY_EXISTS(3001, "该计划已有成果"),
     ACHIEVEMENT_STATUS_NOT_EDITABLE(3002, "当前成果状态不可编辑"),
+    ACHIEVEMENT_CANNOT_WITHDRAW(3003, "已有审批人处理，无法撤回"),
 
     // User errors
     USERNAME_ALREADY_EXISTS(4001, "用户名已存在"),
@@ -41,7 +46,8 @@ public enum ErrorCode {
     DEPARTMENT_HAS_USERS(4004, "部门下存在用户，不可删除"),
 
     // Approval errors
-    NOT_APPROVER(5001, "您不是该记录的审批人");
+    NOT_APPROVER(5001, "您不是该记录的审批人"),
+    APPROVAL_REJECT_COMMENT_REQUIRED(5002, "驳回必须填写具体原因");
 
     private final int code;
     private final String message;

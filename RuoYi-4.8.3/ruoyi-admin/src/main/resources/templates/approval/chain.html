@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:include="include :: header('审批链配置')" /></head>
+<body class="gray-bg"><div class="wrapper wrapper-content"><div class="ibox"><div class="ibox-title"><h5>审批链配置</h5></div>
+<div class="ibox-content">
+    <div id="toolbar"><button class="btn btn-primary" onclick="addChain()"><i class="fa fa-plus"></i> 新增</button></div>
+    <table id="chainTable" class="table table-striped"></table>
+</div></div></div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/approval/chain.js}"></script></body></html>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.achievement.mapper.AchievementMapper">
+
+    <resultMap type="Achievement" id="AchievementResult">
+        <id     property="id"          column="id" />
+        <result property="planId"      column="plan_id" />
+        <result property="description" column="description" />
+        <result property="actualQty"   column="actual_qty" />
+        <result property="actualHours" column="actual_hours" />
+        <result property="issues"      column="issues" />
+        <result property="status"      column="status" />
+        <result property="submittedAt" column="submitted_at" />
+        <result property="delFlag"     column="del_flag" />
+        <result property="userName"    column="user_name" />
+        <result property="deptName"    column="dept_name" />
+        <result property="planTitle"   column="plan_title" />
+        <result property="planType"    column="plan_type" />
+        <result property="planPriority" column="plan_priority" />
+        <result property="planQuantTarget" column="plan_quant_target" />
+    </resultMap>
+
+    <sql id="selectAchievementVo">
+        select a.id, a.plan_id, a.description, a.actual_qty, a.actual_hours,
+               a.issues, a.status, a.submitted_at, a.del_flag,
+               a.create_by, a.create_time, a.update_by, a.update_time, a.remark,
+               su.user_name, sd.dept_name,
+               p.title as plan_title, p.plan_type, p.priority as plan_priority,
+               p.quant_target as plan_quant_target
+        from achievement a
+        left join sys_user su on a.create_by = su.login_name
+        left join sys_dept sd on su.dept_id = sd.dept_id
+        left join plan p on a.plan_id = p.id
+    </sql>
+
+    <select id="selectAchievementList" parameterType="Achievement" resultMap="AchievementResult">
+        <include refid="selectAchievementVo" />
+        <where>
+            a.del_flag = '0'
+            <if test="status != null and status != ''">AND a.status = #{status}</if>
+            <if test="planId != null">AND a.plan_id = #{planId}</if>
+        </where>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectAchievementById" parameterType="Long" resultMap="AchievementResult">
+        <include refid="selectAchievementVo" />
+        where a.id = #{id} and a.del_flag = '0'
+    </select>
+
+    <insert id="insertAchievement" parameterType="Achievement" useGeneratedKeys="true" keyProperty="id">
+        insert into achievement (plan_id, description, actual_qty, actual_hours, issues, status, submitted_at, del_flag, create_by, create_time, remark)
+        values (#{planId}, #{description}, #{actualQty}, #{actualHours}, #{issues}, #{status}, #{submittedAt}, '0', #{createBy}, sysdate(), #{remark})
+    </insert>
+
+    <update id="updateAchievement" parameterType="Achievement">
+        update achievement
+        <set>
+            <if test="description != null">description = #{description},</if>
+            <if test="actualQty != null">actual_qty = #{actualQty},</if>
+            <if test="actualHours != null">actual_hours = #{actualHours},</if>
+            <if test="issues != null">issues = #{issues},</if>
+            <if test="status != null">status = #{status},</if>
+            update_by = #{updateBy}, update_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateAchievementStatus" parameterType="Map">
+        update achievement set status = #{status}, update_time = sysdate()
+        <if test="submittedAt != null">, submitted_at = #{submittedAt}</if>
+        where id = #{id}
+    </update>
+
+    <update id="deleteAchievementById" parameterType="Long">
+        update achievement set del_flag = '2', update_time = sysdate() where id = #{id}
+    </update>
+
+</mapper>

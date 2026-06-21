@@ -1,0 +1,3 @@
+$(function(){$.table.init({url:'/plan/category/list',modalName:'分类',columns:[{field:'id',visible:false},{field:'name',title:'分类名称'},{field:'deptName',title:'所属部门',formatter:function(v){return v||'全局'}},{field:'sortOrder',title:'排序'},{field:'createTime',title:'创建时间'},{title:'操作',align:'center',formatter:function(v,r){return '<button class="btn btn-xs btn-primary" onclick="edit('+r.id+')">编辑</button> <button class="btn btn-xs btn-danger" onclick="$.operate.remove(\'/plan/category/remove\','+r.id+')">删除</button>';}}]});});
+function add(){$.modal.open("新增分类","/plan/category/add");}
+function edit(id){$.modal.open("编辑分类","/plan/category/edit/"+id);}

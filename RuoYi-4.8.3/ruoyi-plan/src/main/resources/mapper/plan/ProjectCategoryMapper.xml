@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.plan.mapper.ProjectCategoryMapper">
+
+    <resultMap type="ProjectCategory" id="ProjectCategoryResult">
+        <id     property="id"         column="id" />
+        <result property="name"       column="name" />
+        <result property="deptId"     column="dept_id" />
+        <result property="sortOrder"  column="sort_order" />
+        <result property="deptName"   column="dept_name" />
+        <result property="createBy"   column="create_by" />
+        <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <select id="selectProjectCategoryList" parameterType="ProjectCategory" resultMap="ProjectCategoryResult">
+        select c.*, d.dept_name
+        from project_category c
+        left join sys_dept d on c.dept_id = d.dept_id
+        <where>
+            <if test="deptId != null">and (c.dept_id = #{deptId} or c.dept_id is null)</if>
+            <if test="name != null and name != ''">and c.name like concat('%', #{name}, '%')</if>
+        </where>
+        order by c.sort_order, c.id
+    </select>
+
+    <select id="selectProjectCategoryById" parameterType="Long" resultMap="ProjectCategoryResult">
+        select c.*, d.dept_name
+        from project_category c
+        left join sys_dept d on c.dept_id = d.dept_id
+        where c.id = #{id}
+    </select>
+
+    <insert id="insertProjectCategory" parameterType="ProjectCategory" useGeneratedKeys="true" keyProperty="id">
+        insert into project_category (name, dept_id, sort_order, create_by, create_time)
+        values (#{name}, #{deptId}, #{sortOrder}, #{createBy}, sysdate())
+    </insert>
+
+    <update id="updateProjectCategory" parameterType="ProjectCategory">
+        update project_category
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            update_by = #{updateBy}, update_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteProjectCategoryById" parameterType="Long">
+        delete from project_category where id = #{id}
+    </delete>
+
+</mapper>

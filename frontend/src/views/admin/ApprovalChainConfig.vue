@@ -118,9 +118,13 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 import { Plus } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
 import { getApprovalChains, createApprovalChain, updateApprovalChain, deleteApprovalChain, getDepartmentList, getUserList } from '@/api/admin'
 
+const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const saving = ref(false)
 const dialogVisible = ref(false)
@@ -175,8 +179,8 @@ async function fetchData() {
 
     const res = await getApprovalChains(params)
     if (res.code === 200 && res.data) {
-      tableData.value = res.data.records || []
-      pagination.total = res.data.total || 0
+      tableData.value = res.data || []
+      pagination.total = (res.data || []).length
     }
   } catch {
     ElMessage.error('获取审批链配置失败')
@@ -257,6 +261,11 @@ async function handleDelete(id) {
 }
 
 onMounted(() => {
+  if (!userStore.isLeader) {
+    ElMessage.warning('没有权限访问该页面')
+    router.replace('/dashboard')
+    return
+  }
   fetchData()
   loadOptions()
 })

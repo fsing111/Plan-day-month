@@ -188,7 +188,7 @@ async function handleSave(submitDirectly) {
 
   try {
     const data = {
-      planId: planId.value,
+      planIds: [planId.value],
       description: form.description,
       actualQty: form.actualQty || null,
       actualHours: form.actualHours,

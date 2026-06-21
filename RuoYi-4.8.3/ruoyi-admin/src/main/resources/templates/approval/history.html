@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('审批历史')" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title"><h5>审批历史</h5></div>
+        <div class="ibox-content">
+            <form class="form-horizontal" id="searchForm">
+                <div class="form-group">
+                    <label class="col-sm-1 control-label">类型</label>
+                    <div class="col-sm-2"><select name="targetType" class="form-control"><option value="">全部</option><option value="PLAN">计划</option><option value="ACHIEVEMENT">成果</option></select></div>
+                    <label class="col-sm-1 control-label">结果</label>
+                    <div class="col-sm-2"><select name="action" class="form-control"><option value="">全部</option><option value="APPROVE">通过</option><option value="REJECT">驳回</option><option value="TRANSFER">转审</option></select></div>
+                    <div class="col-sm-2"><button type="button" class="btn btn-primary" onclick="$.table.refresh()">查询</button></div>
+                </div>
+            </form>
+            <table id="historyTable" class="table table-striped"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/approval/history.js}"></script>
+</body>
+</html>

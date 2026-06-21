@@ -10,16 +10,20 @@
       active-text-color="#409eff"
       router
     >
+      <el-menu-item index="/dashboard">
+        <el-icon><HomeFilled /></el-icon>
+        <span>工作台</span>
+      </el-menu-item>
+
       <el-sub-menu index="plans-group">
         <template #title>
           <el-icon><Document /></el-icon>
           <span>工作计划</span>
         </template>
         <el-menu-item index="/plans">计划列表</el-menu-item>
-        <el-menu-item index="/plans/create">新建日报</el-menu-item>
-        <el-menu-item index="/plans/create?type=weekly">新建周报</el-menu-item>
-        <el-menu-item index="/plans/create?type=monthly">新建月报</el-menu-item>
+        <el-menu-item index="/plans/create">新建计划</el-menu-item>
         <el-menu-item index="/plans/calendar">日历视图</el-menu-item>
+        <el-menu-item index="/templates">计划模板</el-menu-item>
       </el-sub-menu>
 
       <el-sub-menu index="achievements-group">
@@ -48,7 +52,7 @@
         <el-menu-item index="/approvals/history">审批历史</el-menu-item>
       </el-sub-menu>
 
-      <el-sub-menu v-if="userStore.isAdmin" index="admin-group">
+      <el-sub-menu v-if="userStore.isLeader" index="admin-group">
         <template #title>
           <el-icon><Setting /></el-icon>
           <span>系统管理</span>
@@ -57,12 +61,17 @@
         <el-menu-item index="/admin/departments">部门管理</el-menu-item>
         <el-menu-item index="/admin/approval-chains">审批链配置</el-menu-item>
         <el-menu-item index="/admin/categories">分类管理</el-menu-item>
+        <el-menu-item index="/admin/logs">操作日志</el-menu-item>
       </el-sub-menu>
 
-      <el-menu-item index="/profile">
-        <el-icon><User /></el-icon>
-        <span>个人中心</span>
-      </el-menu-item>
+      <el-sub-menu index="profile-group">
+        <template #title>
+          <el-icon><User /></el-icon>
+          <span>个人中心</span>
+        </template>
+        <el-menu-item index="/profile">个人信息</el-menu-item>
+        <el-menu-item index="/profile/recycle-bin">回收站</el-menu-item>
+      </el-sub-menu>
     </el-menu>
   </div>
 </template>

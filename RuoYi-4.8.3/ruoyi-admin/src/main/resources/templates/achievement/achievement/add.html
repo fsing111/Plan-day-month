@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('提交成果')" />
+    <th:block th:include="include :: summernote-css" />
+    <th:block th:include="include :: summernote-js" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title"><h5>成果表单</h5></div>
+        <div class="ibox-content">
+            <form class="form-horizontal" id="achieveForm">
+                <input type="hidden" id="achievementId"/>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">关联计划 <span class="text-danger">*</span></label>
+                    <div class="col-sm-10">
+                        <select name="planIds" class="form-control" id="planSelect" multiple size="5" required>
+                            <option value="">加载已通过的计划...</option>
+                        </select>
+                        <span class="help-block">可选择多条已通过的计划（Ctrl+点击多选）</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">实际完成数量</label>
+                    <div class="col-sm-4"><input type="text" name="actualQty" class="form-control" placeholder="与计划量化指标对应"/></div>
+                    <label class="col-sm-2 control-label">实际耗时(小时)</label>
+                    <div class="col-sm-4"><input type="number" name="actualHours" class="form-control" step="0.5" min="0"/></div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">完成说明 <span class="text-danger">*</span></label>
+                    <div class="col-sm-10"><div id="descEditor" class="summernote"></div><input type="hidden" name="description"/></div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">遇到的问题</label>
+                    <div class="col-sm-10"><textarea name="issues" class="form-control" rows="3" maxlength="1000"></textarea></div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">备注</label>
+                    <div class="col-sm-10"><textarea name="remark" class="form-control" rows="2" maxlength="500"></textarea></div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">附件</label>
+                    <div class="col-sm-10">
+                        <input type="file" id="fileUpload" multiple accept=".jpg,.png,.gif,.bmp,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip"/>
+                        <span class="help-block">支持图片/文档/PDF，单文件≤10MB，最多5个</span>
+                        <div id="fileList"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/achievement/achievement-form.js}"></script>
+</body>
+</html>

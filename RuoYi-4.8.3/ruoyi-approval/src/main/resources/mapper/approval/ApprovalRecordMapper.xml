@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.approval.mapper.ApprovalRecordMapper">
+
+    <resultMap type="ApprovalRecord" id="RecordResult">
+        <id property="id" column="id"/>
+        <result property="targetId" column="target_id"/>
+        <result property="targetType" column="target_type"/>
+        <result property="approverId" column="approver_id"/>
+        <result property="approvalLevel" column="approval_level"/>
+        <result property="action" column="action"/>
+        <result property="comment" column="comment"/>
+        <result property="approvedAt" column="approved_at"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="approverName" column="approver_name"/>
+        <result property="submitterName" column="submitter_name"/>
+        <result property="targetTitle" column="target_title"/>
+        <result property="targetPlanType" column="target_plan_type"/>
+        <result property="targetPriority" column="target_priority"/>
+    </resultMap>
+
+    <sql id="selectRecordVo">
+        select ar.*, su.user_name as approver_name
+        <if test="targetType != null and targetType == 'PLAN'">
+            ,pl.title as target_title, pl.plan_type as target_plan_type, pl.priority as target_priority
+            ,su2.user_name as submitter_name
+            from approval_record ar
+            left join sys_user su on ar.approver_id = su.user_id
+            left join plan pl on ar.target_id = pl.id
+            left join sys_user su2 on pl.user_id = su2.user_id
+        </if>
+        <if test="targetType != null and targetType == 'ACHIEVEMENT'">
+            ,ach.description as target_title, p2.plan_type as target_plan_type
+            ,su2.user_name as submitter_name
+            from approval_record ar
+            left join sys_user su on ar.approver_id = su.user_id
+            left join achievement ach on ar.target_id = ach.id
+            left join plan p2 on ach.plan_id = p2.id
+            left join sys_user su2 on ach.create_by = su2.login_name
+        </if>
+    </sql>
+
+    <select id="selectPendingList" parameterType="ApprovalRecord" resultMap="RecordResult">
+        select ar.*, su.user_name as approver_name,
+               p.title as target_title, p.plan_type as target_plan_type, p.priority as target_priority,
+               su2.user_name as submitter_name
+        from approval_record ar
+        left join sys_user su on ar.approver_id = su.user_id
+        left join plan p on ar.target_id = p.id and ar.target_type = 'PLAN'
+        left join sys_user su2 on p.user_id = su2.user_id
+        where ar.approver_id = #{approverId} and ar.action is null
+        <if test="targetType != null and targetType != ''">and ar.target_type = #{targetType}</if>
+        order by ar.create_time desc
+    </select>
+
+    <select id="selectHistoryList" parameterType="ApprovalRecord" resultMap="RecordResult">
+        select ar.*, su.user_name as approver_name,
+               p.title as target_title, p.plan_type as target_plan_type,
+               su2.user_name as submitter_name
+        from approval_record ar
+        left join sys_user su on ar.approver_id = su.user_id
+        left join plan p on ar.target_id = p.id and ar.target_type = 'PLAN'
+        left join sys_user su2 on p.user_id = su2.user_id
+        where ar.action is not null
+        <if test="targetType != null and targetType != ''">and ar.target_type = #{targetType}</if>
+        <if test="action != null and action != ''">and ar.action = #{action}</if>
+        order by ar.approved_at desc
+    </select>
+
+    <select id="selectByTarget" parameterType="Map" resultMap="RecordResult">
+        select ar.*, su.user_name as approver_name
+        from approval_record ar
+        left join sys_user su on ar.approver_id = su.user_id
+        where ar.target_id = #{targetId} and ar.target_type = #{targetType}
+        order by ar.approval_level, ar.sort_order
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="RecordResult">
+        select ar.*, su.user_name as approver_name
+        from approval_record ar
+        left join sys_user su on ar.approver_id = su.user_id
+        where ar.id = #{id}
+    </select>
+
+    <insert id="insertApprovalRecord" parameterType="ApprovalRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into approval_record (target_id, target_type, approver_id, approval_level, sort_order, create_by, create_time)
+        values (#{targetId}, #{targetType}, #{approverId}, #{approvalLevel}, #{sortOrder}, #{createBy}, sysdate())
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into approval_record (target_id, target_type, approver_id, approval_level, sort_order, create_by, create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.targetId}, #{item.targetType}, #{item.approverId}, #{item.approvalLevel}, #{item.sortOrder}, #{item.createBy}, sysdate())
+        </foreach>
+    </insert>
+
+    <update id="updateApprovalRecord" parameterType="ApprovalRecord">
+        update approval_record set action = #{action}, comment = #{comment}, approved_at = sysdate()
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByTarget" parameterType="Map">
+        delete from approval_record where target_id = #{targetId} and target_type = #{targetType}
+    </delete>
+
+    <select id="countPendingByLevel" parameterType="Map" resultType="int">
+        select count(1) from approval_record
+        where target_id = #{targetId} and target_type = #{targetType}
+          and approval_level = #{approvalLevel} and (action is null or action != 'APPROVE')
+    </select>
+
+    <select id="countLevelsAbove" parameterType="Map" resultType="int">
+        select count(1) from approval_record
+        where target_id = #{targetId} and target_type = #{targetType}
+          and approval_level > #{approvalLevel}
+    </select>
+
+</mapper>

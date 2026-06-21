@@ -16,7 +16,9 @@ public class StatisticsService {
 
     public Map<String, Object> getPersonalStats() {
         Long userId = UserContext.getUserId();
-        List<Plan> plans = planMapper.selectList(new LambdaQueryWrapper<Plan>().eq(Plan::getUserId, userId));
+        List<Plan> plans = planMapper.selectList(new LambdaQueryWrapper<Plan>()
+                .eq(Plan::getUserId, userId)
+                .isNull(Plan::getDeletedAt));
 
         long total = plans.size();
         long approved = plans.stream().filter(p -> "APPROVED".equals(p.getStatus())).count();
@@ -39,7 +41,9 @@ public class StatisticsService {
         List<Long> subordinateIds = userService.getAllSubordinateIds(userId);
         if (subordinateIds.isEmpty()) return Map.of("teamSummary", Map.of("totalMembers", 0));
 
-        List<Plan> plans = planMapper.selectList(new LambdaQueryWrapper<Plan>().in(Plan::getUserId, subordinateIds));
+        List<Plan> plans = planMapper.selectList(new LambdaQueryWrapper<Plan>()
+                .in(Plan::getUserId, subordinateIds)
+                .isNull(Plan::getDeletedAt));
         long total = plans.size();
         long approved = plans.stream().filter(p -> "APPROVED".equals(p.getStatus())).count();
 

@@ -6,6 +6,10 @@
         <el-icon><Plus /></el-icon>
         新建计划
       </el-button>
+      <el-button @click="handleExport">
+        <el-icon><Download /></el-icon>
+        导出Excel
+      </el-button>
     </div>
 
     <!-- 搜索栏 -->
@@ -24,7 +28,9 @@
             <el-option label="已提交" value="SUBMITTED" />
             <el-option label="审批中" value="APPROVING" />
             <el-option label="已通过" value="APPROVED" />
-            <el-option label="已驳回" value="REJECTED" />
+            <el-option label="待修改" value="REJECTED" />
+            <el-option label="已归档" value="ARCHIVED" />
+            <el-option label="已逾期" value="OVERDUE" />
           </el-select>
         </el-form-item>
         <el-form-item label="关键字">
@@ -68,7 +74,7 @@
       <el-table-column prop="endTime" label="截止时间" width="160" />
       <el-table-column prop="userName" label="创建人" width="100" />
       <el-table-column prop="createdAt" label="创建时间" width="160" />
-      <el-table-column label="操作" width="220" fixed="right">
+      <el-table-column label="操作" width="320" fixed="right">
         <template #default="{ row }">
           <el-button link type="primary" size="small" @click="$router.push(`/plans/${row.id}`)">
             查看
@@ -92,7 +98,31 @@
             提交
           </el-button>
           <el-popconfirm
-            title="确定删除该计划吗？"
+            v-if="canWithdraw(row.status)"
+            title="确定撤回该计划吗？"
+            confirm-button-text="确定"
+            @confirm="handleWithdraw(row.id)"
+          >
+            <template #reference>
+              <el-button link type="warning" size="small">撤回</el-button>
+            </template>
+          </el-popconfirm>
+          <el-button
+            v-if="row.status === 'APPROVED'"
+            link type="success" size="small"
+            @click="$router.push(`/achievements/submit/${row.id}`)"
+          >
+            提交成果
+          </el-button>
+          <el-button
+            v-if="row.status === 'APPROVED'"
+            link type="info" size="small"
+            @click="handleCopy(row.id)"
+          >
+            复制
+          </el-button>
+          <el-popconfirm
+            title="数据将移至回收站（30天内可恢复）"
             confirm-button-text="确定"
             cancel-button-text="取消"
             @confirm="handleDelete(row.id)"
@@ -125,8 +155,8 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Plus, Search } from '@element-plus/icons-vue'
-import { getPlanList, deletePlan, submitPlan } from '@/api/plan'
+import { Plus, Search, Download } from '@element-plus/icons-vue'
+import { getPlanList, deletePlan, submitPlan, withdrawPlan, copyPlan, exportPlans } from '@/api/plan'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -144,14 +174,14 @@ const pagination = reactive({
 })
 
 const planTypeMap = { DAILY: '日报', WEEKLY: '周报', MONTHLY: '月报' }
-const statusMap = { DRAFT: '草稿', SUBMITTED: '已提交', APPROVING: '审批中', APPROVED: '已通过', REJECTED: '已驳回' }
+const statusMap = { DRAFT: '草稿', SUBMITTED: '已提交', APPROVING: '审批中', APPROVED: '已通过', REJECTED: '待修改', ARCHIVED: '已归档', OVERDUE: '已逾期' }
 const priorityMap = { HIGH: '高', MEDIUM: '中', LOW: '低' }
 
 function planTypeLabel(type) { return planTypeMap[type] || type }
 function planTypeColor(type) { return type === 'DAILY' ? '' : type === 'WEEKLY' ? 'warning' : 'info' }
 function statusLabel(status) { return statusMap[status] || status }
 function statusColor(status) {
-  const map = { DRAFT: 'info', SUBMITTED: '', APPROVING: 'warning', APPROVED: 'success', REJECTED: 'danger' }
+  const map = { DRAFT: 'info', SUBMITTED: '', APPROVING: 'warning', APPROVED: 'success', REJECTED: 'danger', ARCHIVED: '', OVERDUE: 'danger' }
   return map[status] || 'info'
 }
 function priorityLabel(p) { return priorityMap[p] || p }
@@ -162,7 +192,8 @@ function priorityColor(p) {
 
 function canEdit(status) { return status === 'DRAFT' || status === 'REJECTED' }
 function canSubmit(status) { return status === 'DRAFT' || status === 'REJECTED' }
-function canDelete(status) { return status === 'DRAFT' }
+function canDelete(status) { return status === 'DRAFT' || status === 'REJECTED' }
+function canWithdraw(status) { return status === 'SUBMITTED' || status === 'APPROVING' }
 
 async function fetchPlans() {
   loading.value = true
@@ -194,6 +225,45 @@ function handleReset() {
   searchForm.status = ''
   searchForm.keyword = ''
   handleSearch()
+}
+
+async function handleWithdraw(id) {
+  try {
+    await withdrawPlan(id)
+    ElMessage.success('撤回成功')
+    fetchPlans()
+  } catch (e) {
+    ElMessage.error(e?.message || '撤回失败')
+  }
+}
+
+async function handleCopy(id) {
+  try {
+    await copyPlan(id)
+    ElMessage.success('复制成功，请编辑新计划')
+    fetchPlans()
+  } catch {
+    ElMessage.error('复制失败')
+  }
+}
+
+async function handleExport() {
+  try {
+    const params = {}
+    if (searchForm.planType) params.planType = searchForm.planType
+    if (searchForm.status) params.status = searchForm.status
+    const res = await exportPlans(params)
+    const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = '计划导出.xlsx'
+    a.click()
+    URL.revokeObjectURL(url)
+    ElMessage.success('导出成功')
+  } catch {
+    ElMessage.error('导出失败')
+  }
 }
 
 async function handleSubmit(row) {

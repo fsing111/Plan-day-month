@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.achievement.mapper.AttachmentMapper">
+
+    <resultMap type="Attachment" id="AttachResult">
+        <id property="id" column="id"/>
+        <result property="achievementId" column="achievement_id"/>
+        <result property="fileName" column="file_name"/>
+        <result property="filePath" column="file_path"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="fileType" column="file_type"/>
+    </resultMap>
+
+    <select id="selectByAchievementId" parameterType="Long" resultMap="AttachResult">
+        select * from attachment where achievement_id = #{achievementId}
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="AttachResult">
+        select * from attachment where id = #{id}
+    </select>
+
+    <insert id="insertAttachment" parameterType="Attachment" useGeneratedKeys="true" keyProperty="id">
+        insert into attachment (achievement_id, file_name, file_path, file_size, file_type, create_by, create_time)
+        values (#{achievementId}, #{fileName}, #{filePath}, #{fileSize}, #{fileType}, #{createBy}, sysdate())
+    </insert>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from attachment where id = #{id}
+    </delete>
+
+</mapper>

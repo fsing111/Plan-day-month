@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('计划详情')" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title"><h5>基本信息</h5></div>
+                <div class="ibox-content">
+                    <table class="table table-bordered">
+                        <tr><th width="100">标题</th><td id="planTitle"></td></tr>
+                        <tr><th>类型</th><td id="planType"></td></tr>
+                        <tr><th>优先级</th><td id="planPriority"></td></tr>
+                        <tr><th>状态</th><td id="planStatus"></td></tr>
+                        <tr><th>提交人</th><td id="planUser"></td></tr>
+                        <tr><th>所属部门</th><td id="planDept"></td></tr>
+                        <tr><th>分类</th><td id="planCategory"></td></tr>
+                        <tr><th>量化指标</th><td id="planQuant"></td></tr>
+                        <tr><th>开始时间</th><td id="planStart"></td></tr>
+                        <tr><th>截止时间</th><td id="planEnd"></td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="ibox float-e-margins">
+                <div class="ibox-title"><h5>详细描述</h5></div>
+                <div class="ibox-content" id="planDesc"></div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="ibox float-e-margins" id="approvalTimelineBox">
+                <div class="ibox-title"><h5>审批时间线</h5></div>
+                <div class="ibox-content" id="approvalTimeline"></div>
+            </div>
+            <div class="ibox float-e-margins" id="achievementLinkBox" style="display:none;">
+                <div class="ibox-title"><h5>关联成果</h5></div>
+                <div class="ibox-content" id="achievementLink"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/plan/plan-detail.js}"></script>
+</body>
+</html>

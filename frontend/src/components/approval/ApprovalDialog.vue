@@ -70,9 +70,11 @@
         <el-button type="warning" :loading="loading" @click="handleTransfer">
           转审
         </el-button>
-        <el-button type="danger" :loading="loading" @click="handleReject">
-          驳回
-        </el-button>
+        <el-tooltip :content="!comment.trim() ? '驳回必须填写具体原因' : ''" :disabled="!!comment.trim()">
+          <el-button type="danger" :loading="loading" :disabled="!comment.trim()" @click="handleReject">
+            驳回
+          </el-button>
+        </el-tooltip>
         <el-button type="success" :loading="loading" @click="handleApprove">
           通过
         </el-button>
@@ -140,16 +142,12 @@ async function loadDeptUsers() {
 
 async function handleApprove() {
   actionMode.value = 'approve'
-  await submitAction(() => approveRecord(props.record.recordId, { comment: comment.value }))
+  await submitAction(() => approveRecord(props.record.id, { comment: comment.value }))
 }
 
 async function handleReject() {
-  if (!comment.value.trim()) {
-    ElMessage.warning('驳回时必须填写驳回原因')
-    return
-  }
   actionMode.value = 'reject'
-  await submitAction(() => rejectRecord(props.record.recordId, { comment: comment.value }))
+  await submitAction(() => rejectRecord(props.record.id, { comment: comment.value }))
 }
 
 async function handleTransfer() {
@@ -158,7 +156,7 @@ async function handleTransfer() {
     return
   }
   actionMode.value = 'transfer'
-  await submitAction(() => transferRecord(props.record.recordId, {
+  await submitAction(() => transferRecord(props.record.id, {
     targetUserId: transferTargetId.value,
     comment: comment.value
   }))
@@ -168,7 +166,7 @@ async function submitAction(apiCall) {
   loading.value = true
   try {
     await apiCall()
-    const labels = { approve: '已通过', reject: '已驳回', transfer: '已转审' }
+    const labels = { approve: '已通过', reject: '待修改', transfer: '已转审' }
     ElMessage.success(labels[actionMode.value] || '操作成功')
     emit('done')
     visible.value = false

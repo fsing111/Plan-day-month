@@ -127,8 +127,7 @@ import { ElMessage } from 'element-plus'
 import { Document, Upload } from '@element-plus/icons-vue'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import { createPlan, updatePlan, getPlanDetail, getRollupOptions } from '@/api/plan'
-import { getCategories } from '@/api/admin'
+import { createPlan, updatePlan, getPlanDetail, getRollupOptions, getCategories } from '@/api/plan'
 
 const router = useRouter()
 const route = useRoute()

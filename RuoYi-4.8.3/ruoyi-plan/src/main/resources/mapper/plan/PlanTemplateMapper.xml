@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.plan.mapper.PlanTemplateMapper">
+
+    <resultMap type="PlanTemplate" id="PlanTemplateResult">
+        <id     property="id"           column="id" />
+        <result property="userId"       column="user_id" />
+        <result property="name"         column="name" />
+        <result property="planType"     column="plan_type" />
+        <result property="title"        column="title" />
+        <result property="description"  column="description" />
+        <result property="priority"     column="priority" />
+        <result property="categoryId"   column="category_id" />
+        <result property="quantTarget"  column="quant_target" />
+        <result property="categoryName" column="category_name" />
+        <result property="createBy"     column="create_by" />
+        <result property="createTime"   column="create_time" />
+    </resultMap>
+
+    <select id="selectPlanTemplateList" parameterType="PlanTemplate" resultMap="PlanTemplateResult">
+        select t.*, pc.name as category_name
+        from plan_template t
+        left join project_category pc on t.category_id = pc.id
+        where t.user_id = #{userId}
+        <if test="planType != null and planType != ''">
+            and t.plan_type = #{planType}
+        </if>
+        order by t.create_time desc
+    </select>
+
+    <select id="selectPlanTemplateById" parameterType="Long" resultMap="PlanTemplateResult">
+        select t.*, pc.name as category_name
+        from plan_template t
+        left join project_category pc on t.category_id = pc.id
+        where t.id = #{id}
+    </select>
+
+    <insert id="insertPlanTemplate" parameterType="PlanTemplate" useGeneratedKeys="true" keyProperty="id">
+        insert into plan_template (user_id, name, plan_type, title, description, priority, category_id, quant_target, create_by, create_time)
+        values (#{userId}, #{name}, #{planType}, #{title}, #{description}, #{priority}, #{categoryId}, #{quantTarget}, #{createBy}, sysdate())
+    </insert>
+
+    <delete id="deletePlanTemplateById" parameterType="Long">
+        delete from plan_template where id = #{id}
+    </delete>
+
+</mapper>

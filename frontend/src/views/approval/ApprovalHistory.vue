@@ -89,9 +89,11 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
 import { getApprovalHistory } from '@/api/approval'
 
 const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const tableData = ref([])
 
@@ -151,7 +153,14 @@ function goToDetail(row) {
   }
 }
 
-onMounted(() => { fetchData() })
+onMounted(() => {
+  if (!userStore.isLeader) {
+    ElMessage.warning('没有权限访问该页面')
+    router.replace('/dashboard')
+    return
+  }
+  fetchData()
+})
 </script>
 
 <style scoped>

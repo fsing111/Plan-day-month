@@ -24,3 +24,15 @@ export function submitAchievement(id) {
 export function getPlanAchievement(planId) {
   return request.get(`/plans/${planId}/achievement`)
 }
+
+export function withdrawAchievement(id) {
+  return request.post(`/achievements/${id}/withdraw`)
+}
+
+export function deleteAchievement(id) {
+  return request.delete(`/achievements/${id}`)
+}
+
+export function exportAchievements(params) {
+  return request.get('/export/achievements', { params, responseType: 'blob' })
+}

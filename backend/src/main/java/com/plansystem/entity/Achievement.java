@@ -20,6 +20,7 @@ public class Achievement {
     private String remark;
     private String status;
     private LocalDateTime submittedAt;
+    private LocalDateTime deletedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

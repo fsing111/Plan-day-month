@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head><th:block th:include="include :: header('团队统计')" /></head>
+<body class="gray-bg"><div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-4"><div class="ibox"><div class="ibox-content text-center"><h2 id="teamMembers">0</h2><p>团队成员</p></div></div></div>
+        <div class="col-sm-4"><div class="ibox"><div class="ibox-content text-center"><h2 id="teamPlans">0</h2><p>计划总数</p></div></div></div>
+        <div class="col-sm-4"><div class="ibox"><div class="ibox-content text-center"><h2 id="teamRate">0%</h2><p>团队完成率</p></div></div></div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8"><div class="ibox"><div class="ibox-title"><h5>成员完成率对比</h5></div><div class="ibox-content"><div id="memberChart" style="height:300px;"></div></div></div></div>
+        <div class="col-sm-4"><div class="ibox"><div class="ibox-title"><h5>今日未提交</h5></div><div class="ibox-content" id="unsubmitted"><p class="text-muted">加载中...</p></div></div></div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script th:src="@{/ruoyi/js/statistics/team.js}"></script></body></html>

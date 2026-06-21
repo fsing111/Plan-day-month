@@ -16,8 +16,8 @@
       <el-table-column prop="title" label="标题" min-width="180" show-overflow-tooltip />
       <el-table-column label="类型" width="80">
         <template #default="{ row }">
-          <el-tag :type="row.planType ? '' : 'info'" size="small">
-            {{ row.planType ? planTypeLabel(row.planType) : '成果' }}
+          <el-tag :type="row.targetType === 'PLAN' ? '' : 'success'" size="small">
+            {{ row.targetType === 'PLAN' ? planTypeLabel(row.planType) : '成果' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -85,9 +85,13 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import { getPendingApprovals } from '@/api/approval'
 import ApprovalDialog from '@/components/approval/ApprovalDialog.vue'
 
+const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const tableData = ref([])
 const activeTab = ref('PLAN')
@@ -114,14 +118,12 @@ async function fetchData() {
   loading.value = true
   try {
     const params = {
-      page: pagination.page,
-      pageSize: pagination.pageSize,
       targetType: activeTab.value
     }
     const res = await getPendingApprovals(params)
     if (res.code === 200 && res.data) {
-      tableData.value = res.data.records || []
-      pagination.total = res.data.total || 0
+      tableData.value = res.data || []
+      pagination.total = (res.data || []).length
     }
   } catch {
     ElMessage.error('获取待审批列表失败')
@@ -140,7 +142,14 @@ function openApprovalDialog(record) {
   dialogVisible.value = true
 }
 
-onMounted(() => { fetchData() })
+onMounted(() => {
+  if (!userStore.isLeader) {
+    ElMessage.warning('没有权限访问该页面')
+    router.replace('/dashboard')
+    return
+  }
+  fetchData()
+})
 </script>
 
 <style scoped>

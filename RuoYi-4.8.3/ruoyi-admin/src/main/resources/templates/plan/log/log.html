@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:include="include :: header('操作日志')" /></head>
+<body class="gray-bg"><div class="wrapper wrapper-content"><div class="ibox"><div class="ibox-title"><h5>操作日志</h5></div>
+<div class="ibox-content">
+    <form class="form-inline" id="searchForm">
+        <input type="text" name="username" class="form-control" placeholder="操作人"/>
+        <select name="operation" class="form-control"><option value="">全部</option><option>CREATE</option><option>UPDATE</option><option>DELETE</option><option>SUBMIT</option><option>WITHDRAW</option><option>APPROVE</option><option>REJECT</option></select>
+        <button type="button" class="btn btn-primary" onclick="$.table.search()">查询</button>
+    </form>
+    <table id="logTable" class="table table-striped" style="margin-top:10px;"></table>
+</div></div></div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/plan/log.js}"></script></body></html>

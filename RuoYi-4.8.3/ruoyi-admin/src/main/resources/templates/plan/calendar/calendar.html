@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('日历视图')" />
+    <link th:href="@{/ajax/libs/fullcalendar/main.min.css}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>日历视图</h5>
+            <div class="ibox-tools">
+                <div class="btn-group">
+                    <button class="btn btn-white btn-sm" onclick="filterType('')">全部</button>
+                    <button class="btn btn-white btn-sm" onclick="filterType('DAILY')">日报</button>
+                    <button class="btn btn-white btn-sm" onclick="filterType('WEEKLY')">周报</button>
+                    <button class="btn btn-white btn-sm" onclick="filterType('MONTHLY')">月报</button>
+                </div>
+            </div>
+        </div>
+        <div class="ibox-content">
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script th:src="@{/ruoyi/js/plan/plan-calendar.js}"></script>
+</body>
+</html>

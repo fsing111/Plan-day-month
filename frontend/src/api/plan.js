@@ -32,3 +32,27 @@ export function getCalendarData(params) {
 export function getRollupOptions(id, params) {
   return request.get(`/plans/${id}/rollup-options`, { params })
 }
+
+export function withdrawPlan(id) {
+  return request.post(`/plans/${id}/withdraw`)
+}
+
+export function copyPlan(id) {
+  return request.post(`/plans/copy/${id}`)
+}
+
+export function getPlanRevisions(id) {
+  return request.get(`/plans/${id}/revisions`)
+}
+
+export function exportPlans(params) {
+  return request.get('/export/plans', { params, responseType: 'blob' })
+}
+
+export function getApprovedPlansWithoutAchievement() {
+  return request.get('/plans/approved-without-achievement')
+}
+
+export function getCategories() {
+  return request.get('/plans/categories')
+}
